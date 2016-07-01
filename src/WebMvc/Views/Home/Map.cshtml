@@ -1,0 +1,29 @@
+@{
+    ViewData["Title"] = "Map";
+}
+
+@section styles{
+     <link rel="stylesheet" href="~/lib/leaflet/dist/leaflet.css" />
+     <style>
+     #mapid { height: 480px; }
+     </style>
+}
+<div id="mapid">
+</div>
+
+@section scripts {
+     <script src="~/lib/leaflet/dist/leaflet.js"></script>
+     <script type="text/javascript">
+        var baseLayer = new L.tileLayer('@Url.Content("~/vec_w/MapServer/tile/{z}/{x}/{y}")', {
+            attribution: '&copy; <a href="http://www.tianditu.com/">天地图</a> 提供底图服务',
+            subdomains: ['0', '1', '2', '3', '4', '5', '6', '7']
+        });
+
+        var map = new L.Map('mapid', {
+            center: new L.LatLng(23.1251, 113.3654),
+            zoom: 14,
+            layers: [baseLayer]
+        });
+
+    </script>
+}

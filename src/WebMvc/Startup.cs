@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Ataoge.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -52,6 +53,8 @@ namespace WebApplication
             // Add application services.
             services.AddTransient<IEmailSender, AuthMessageSender>();
             services.AddTransient<ISmsSender, AuthMessageSender>();
+
+            services.AddScoped<IQueryContextService, QueryContextService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -60,6 +63,14 @@ namespace WebApplication
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
 
+             var logger = loggerFactory.CreateLogger<Startup>();
+            using (logger.BeginScope("startup"))
+            {
+                logger.LogWarning("Starting up");
+            }
+
+            logger.LogInformation("This message is not in a scope");
+            
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

@@ -3,10 +3,7 @@
   "buildOptions": {
     "debugType": "portable"
   },
-  "dependencies": {
-    "Newtonsoft.Json": "9.0.1-beta1",
-    "System.IO.FileSystem": "4.0.1"
-  },
+  "dependencies": {},
   "frameworks": {
     "netstandard1.6": {
       "dependencies": {

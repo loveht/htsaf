@@ -10,6 +10,7 @@ namespace WebApplication.Controllers
     {
         public IActionResult Index()
         {
+            
             return View();
         }
 
@@ -23,6 +24,13 @@ namespace WebApplication.Controllers
         public IActionResult Contact()
         {
             ViewData["Message"] = "Your contact page.";
+
+            return View();
+        }
+
+        public IActionResult Map()
+        {
+            ViewData["Message"] = "Your Map page.";
 
             return View();
         }
