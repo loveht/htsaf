@@ -24,7 +24,7 @@ namespace Ataoge.GIS.Controllers
             return new OkResult();
         }
 
-        [HttpGet("/{serviceName}/MapServer/tile/{level}/{tileRow}/{tileCol}")]
+        [HttpGet("/{serviceName}/MapServer/tile/{level}/{row}/{col}")]
         public IActionResult Tile(string serviceName, int level, int row,  int col)
         {
             //_logger.LogInformation($"Value is: {serviceName}");

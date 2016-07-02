@@ -45,7 +45,14 @@
         @RenderBody()
         <hr />
         <footer>
-            <p>&copy; 2016 - WebApplication</p>
+            <div class="row">
+                    <div class="col-md-6">
+                        <p>&copy; 2016 - WebMvc</p>
+                    </div>
+                    <div class="col-md-6 text-right">
+                        @await Html.PartialAsync("_SelectLanguagePartial")
+                    </div>
+                </div>
         </footer>
     </div>
 

@@ -10,7 +10,7 @@ using WebApplication.Models;
 using WebApplication.Models.ManageViewModels;
 using WebApplication.Services;
 
-namespace WebApplication.Controllers
+namespace WebMvc.Controllers
 {
     [Authorize]
     public class ManageController : Controller

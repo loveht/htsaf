@@ -10,9 +10,10 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Logging;
 using WebApplication.Models;
 using WebApplication.Models.AccountViewModels;
+using WebMvc.ViewModels.Account;
 using WebApplication.Services;
 
-namespace WebApplication.Controllers
+namespace WebMvc.Controllers
 {
     [Authorize]
     public class AccountController : Controller

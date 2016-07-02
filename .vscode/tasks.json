@@ -6,12 +6,19 @@
     "isShellCommand": true,
     "args": [],
       "options": {
-        "cwd": "${workspaceRoot}/src/ConsoleApp"
+        "cwd": "${workspaceRoot}"
     },
     "tasks": [
         {
             "taskName": "build",
-            "args": [ ],
+            "args": ["src/WebMvc"],
+            "isBuildCommand": true,
+            "showOutput": "silent",
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "taskName": "buildConsole",
+            "args": ["src/ConsoleApp"],
             "isBuildCommand": true,
             "showOutput": "silent",
             "problemMatcher": "$msCompile"
