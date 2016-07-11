@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using WebApplication.Models;
-using WebApplication.Models.ManageViewModels;
+using WebMvc.ViewModels.Manage;
 using WebApplication.Services;
 
 namespace WebMvc.Controllers

@@ -17,8 +17,8 @@
             "problemMatcher": "$msCompile"
         },
         {
-            "taskName": "buildConsole",
-            "args": ["src/ConsoleApp"],
+            "taskName": "build",
+            "args": [ "src/ConsoleApp"],
             "isBuildCommand": true,
             "showOutput": "silent",
             "problemMatcher": "$msCompile"

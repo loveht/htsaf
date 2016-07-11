@@ -4,10 +4,13 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace WebApplication.Models.ManageViewModels
+namespace WebMvc.ViewModels.Manage
 {
-    public class AddPhoneNumberViewModel
+    public class VerifyPhoneNumberViewModel
     {
+        [Required]
+        public string Code { get; set; }
+
         [Required]
         [Phone]
         [Display(Name = "Phone number")]
