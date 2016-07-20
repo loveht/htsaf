@@ -45,6 +45,13 @@ namespace WebMvc.Controllers
             return View();
         }
 
+        public IActionResult ECharts()
+        {
+            ViewData["Message"] = "Your ECharts page.";
+
+            return View();
+        }
+
         public IActionResult Error()
         {
             return View();

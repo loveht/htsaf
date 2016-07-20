@@ -5,10 +5,10 @@
 @section styles{
      <link rel="stylesheet" href="~/lib/leaflet/dist/leaflet.css" />
      <style>
-     #mapid { height: 480px; }
+     #container { height: 480px; }
      </style>
 }
-<div id="mapid">
+<div id="container">
 </div>
 
 @section scripts {
@@ -21,15 +21,9 @@
             subdomains: ['0', '1', '2', '3', '4', '5', '6', '7']
         });
 
-        var map = LeafletEcharts.initMap('mapid', {
-            center: [23.1251, 113.3654],
-            zoom: 14,
-            layers: [baseLayer]
-        });
+        var dom = document.getElementById("container");
+        var myChart = LeafletEcharts.initEcharts(dom);
 
-
-        var echarts = LeafletEcharts.getEcharts();
-	
         var geoCoordMap = {
             '上海': [121.4648, 31.2891],
             '东莞': [113.8953, 22.901],
@@ -307,14 +301,14 @@
             },
             lmap: {
                 mapOptions:{
-
+                    center:[37.550339, 104.114129],
+                    zoom : 4
                 }
             },
             series: series
         };
         // 使用刚指定的配置项和数据显示图表。
-        echarts.setOption(option);
-        map.setView(L.latLng(37.550339, 104.114129), 4);
-
+        myChart.setOption(option);
+        LeafletEcharts.getLMap().addLayer(baseLayer);
     </script>
 }
