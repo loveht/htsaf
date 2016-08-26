@@ -13,12 +13,18 @@
     LeafletEcharts = factory(L, echarts);
   }
 }(this, function(L, echarts) {
-	var LeafletMap; //Leaflet Map 
-	var EchartInstance; //Echart Instance
+    var maps = {};
+    var MAP_ATTRIBUTE_KEY = '_lmap_';
+    var mapidBase = new Date() - 0;
 
     //define LMapModel
 	var LMapModel = echarts.extendComponentModel({
         type: 'lmap',
+
+        getLMap : function() {
+            return this.__lmap;
+        },
+        
 				
 		defaultOption: {
             mapOptions : {
@@ -41,18 +47,22 @@
 		includes:[L.Mixin.Events],
 		_echartsContainer:null,
 		_map:null,
-		_ec:null,
+		_api:null,
 		_ecModel:null,
         _resizing:false,
 		
-		initialize:function(ec, root) {
-            this._ec = ec;
-			this._echartsContainer= root ? root: ec.getDom();
+		initialize:function(api, root) {
+            this._api = api;
+			this._echartsContainer= root ? root: api.getDom();
 		},
 		
 		getMap: function() {
 			return this._map;
 		},
+
+        getOverLayer : function() {
+            return this.__overlayer;
+        },
 
         setModel:function(ecModel) {
             this._ecModel = ecModel;
@@ -89,9 +99,10 @@
 			if (this._resizing == true)
             {
                 this._resizing = false;
-                this._ec.resize();
+                var ec = echarts.getInstanceByDom(this._api.getDom());
+                ec.resize();
             } else {
-                this._ec.dispatchAction({
+                this._api.dispatchAction({
                     type: 'mapMoveEnd'
                 });
             }
@@ -99,7 +110,7 @@
 		
 		onRemove: function (map) {
 			// remove layer's DOM elements and listeners
-			map.getPanes().overlayPane.removeChild(this._root);
+			map.getPanes().overlayPane.removeChild(this._echartsContainer);
 			map.off('viewreset', this._viewreset, this);
 			map.off('resize', this._resize, this);
 		}
@@ -154,7 +165,6 @@
 	// For deciding which dimensions to use when creating list data
     LMapCoordSys.dimensions = LMapCoordSys.prototype.dimensions;
 	
-	var OverLayer;
 	LMapCoordSys.create = function (ecModel, api) {
         var lmapCoordSys;
 
@@ -163,15 +173,18 @@
                 throw new Error('Only one lmap component can exist');
             }
 
+            var root = api.getDom();
+            var key = root.getAttribute(MAP_ATTRIBUTE_KEY);
             var viewportRoot;
-            if (!LeafletMap) {
-                var root = api.getDom();
+
+            if (!key) {
+                
                 viewportRoot = api.getZr().painter.getViewportRoot();
                 if (typeof L === 'undefined') {
                     throw new Error('LMap api is not loaded');
                 }
-                var root = api.getDom();
-                 // Not support IE8
+
+                // Not support IE8
                 var lmapRoot = root.querySelector('.ec-extension-lmap');
                 if (lmapRoot) {
                     // Reset viewport left and top, which will be changed
@@ -186,33 +199,48 @@
                 lmapRoot.classList.add('ec-extension-lmap');
                 root.appendChild(lmapRoot);
                 var opts = lmapModel.get('mapOptions');
-                LeafletMap = lmapModel.__lmap = new L.map(lmapRoot, opts);
+                if (typeof opts == "function")
+                    opts = opts();
+                var lmap = lmapModel.__lmap = new L.map(lmapRoot, opts);
+
+                var mapid = 'map_' + mapidBase++;
+                maps[mapid] = lmap;
+                root.setAttribute && root.setAttribute(MAP_ATTRIBUTE_KEY, mapid);
+            } else {
+                lmapModel.__lmap = maps[key];
             }
 
-            if (!OverLayer)
+
+            if (!lmapModel.__overlayer)
             {
-                var overlayer = OverLayer = new L.EchartLayer(EchartInstance, viewportRoot);
-                LeafletMap.addLayer(overlayer);
+                var overlayer = lmapModel.__overlayer = new L.EchartLayer(api, viewportRoot);
+                lmapModel.__lmap.addLayer(overlayer);
+                lmapModel.__overlayer.setModel(lmapModel);
             }
-            OverLayer.setModel(lmapModel);
 
-			lmapCoordSys = new LMapCoordSys(LeafletMap, api);
+			lmapCoordSys = new LMapCoordSys(lmapModel.__lmap, api);
             lmapCoordSys.setMapOffset(lmapModel.__mapOffset || [0, 0]);
             lmapModel.coordinateSystem = lmapCoordSys;
 		});
 		
 		ecModel.eachComponent('geo', function (geoModel) {
+            var root = api.getDom();
+            var key = root.getAttribute(MAP_ATTRIBUTE_KEY);
+            if (!key)
+                throw new Error('Must Init LeafletMap First!');
+            
+            var leafletMap = geoModel.__lmap = maps[key];
 			if (!lmapCoordSys) {
-    		   lmapCoordSys = new LMapCoordSys(LeafletMap, api);
+    		   lmapCoordSys = new LMapCoordSys(leafletMap, api);
                lmapCoordSys.setMapOffset(geoModel.__mapOffset || [0, 0]);
             }
             
-            if (!OverLayer)
+            if (!geoModel.__overlayer)
             {
-                var overlayer = OverLayer = new L.EchartLayer(EchartInstance);
-                LeafletMap.addLayer(overlayer);
+                var overlayer = geoModel.__overlayer = new L.EchartLayer(api);
+                leafletMap.addLayer(overlayer);
+                overlayer.setModel(geoModel);
             }
-            OverLayer.setModel(geoModel);
 		});
 		
 		ecModel.eachSeries(function (seriesModel) {
@@ -240,10 +268,41 @@
         });
     });
 	
+    function LEResult(ec, dom, map)
+    {
+        this._ec = ec;
+        this._dom = dom;
+        this._map = map;
+    }
+
+    LEResult.prototype.getMap = function() {
+        if (this._map)
+                return this._map;
+        var mapid = this._dom.getAttribute(MAP_ATTRIBUTE_KEY);    
+        return maps[mapid];
+    } 
+
+    LEResult.prototype.getEcharts = function() {
+        return this._ec;
+    }
+
+    LEResult.prototype.getEchartLayer = function() {
+        var ec = this.getEcharts();
+        var mapModel = ec.getModel().getComponent('lmap');
+        if (!mapModel)
+            mapModel = ec.getModel().getComponent('geo');
+        return mapModel.__overlayer;
+    } 
+
+    LEResult.prototype.setOption = function(option, notMerge, lazyUpdate) { 
+        this._ec.setOption(option,notMerge, lazyUpdate);
+    }
+
 	return {
-        //init leaflet map, return map
-		initMap : function(id, options) {
-			var map = LeafletMap = L.map(id, options);
+        initMap : function(id, options) {
+			var map = L.map(id, options);
+            var mapid = 'map_' + mapidBase++;
+            maps[mapid] = map;
 			var div =  document.createElement('div');
 			var size = map.getSize();
 			div.style.position = "absolute";
@@ -251,24 +310,16 @@
 			div.style.width = size.x + 'px';
 			div.style.top = 0;
 			div.style.left = 0;
-			var ec = EchartInstance = echarts.init(div);
-			return map;
+            div.style.zIndex = 999;
+			var ec =  echarts.init(div);
+            div.setAttribute && div.setAttribute(MAP_ATTRIBUTE_KEY, mapid);
+			return new LEResult(ec, div, map);
 		},
-        //get echart instance
-		getEcharts:function() {
-			return EchartInstance;
-		},
-        //get leaflet Layer for echart
-        getEchartLayer:function() {
-            return OverLayer;
-        },
-        getLMap:function() {
-            return LeafletMap;
-        },
         initEcharts:function(dom) {
-            var ec = EchartInstance = echarts.init(dom);
-            return ec;
-        }
-	};
+            var ec = echarts.init(dom);
+            return new LEResult(ec, dom);
+        },
+        version: "1.0.0"
+    };
 
 }));

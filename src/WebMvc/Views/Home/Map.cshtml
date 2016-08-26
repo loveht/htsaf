@@ -21,14 +21,55 @@
             subdomains: ['0', '1', '2', '3', '4', '5', '6', '7']
         });
 
-        var map = LeafletEcharts.initMap('mapid', {
-            center: [23.1251, 113.3654],
-            zoom: 14,
-            layers: [baseLayer]
+        
+        
+
+         var geojsonMarkerOptions = {
+            radius: 5,
+            fillColor: "#ff7800",
+            color: "#000",
+            weight: 1,
+            opacity: 1,
+            fillOpacity: 0.8
+        };
+
+        var geojsonLayer = L.geoJson(null,{
+            style : function (feature) {
+                return {
+                   color: "#ff0000"
+                };
+            },
+            pointToLayer: function (feature, latlng) {
+                return L.circleMarker(latlng, geojsonMarkerOptions);
+            },
+            onEachFeature : function(feature, layer) {
+                if (feature.properties && feature.properties.name) {
+                    layer.bindPopup(feature.properties.name);
+                }
+            }
         });
 
+        var baseMaps = {
+            "TianDiTu": baseLayer
+        };
 
-        var echarts = LeafletEcharts.getEcharts();
+        var overlayMaps = {
+            "Cities": geojsonLayer
+        };
+        
+        var le = LeafletEcharts.initMap('mapid', {
+            center: [23.1251, 113.3654],
+            zoom: 14,
+            layers: [baseLayer, geojsonLayer]
+        });
+        var map = le.getMap();
+
+        var layercontrol = L.control.layers(baseMaps,overlayMaps, {
+            position: "topright"
+        }).addTo(map);
+
+
+        var echarts = le.getEcharts();
 	
         var geoCoordMap = {
             '上海': [121.4648, 31.2891],
@@ -286,7 +327,7 @@
     //        backgroundColor: '#404a59',
             title: {
                 text: 'Leaflet扩展Echarts3之模拟迁徙',
-                subtext: 'Develop By WanderGIS',
+                subtext: 'Develop By HuangTao',
                 left: 'center',
                 textStyle: {
                     color: '#fff'
@@ -306,15 +347,17 @@
                 selectedMode: 'single'
             },
             lmap: {
-                mapOptions:{
-
-                }
             },
             series: series
         };
         // 使用刚指定的配置项和数据显示图表。
         echarts.setOption(option);
         map.setView(L.latLng(37.550339, 104.114129), 4);
+        layercontrol.addOverlay(le.getEchartLayer(),"ECharts");
+       
+        $.getJSON("http://172.26.60.11:8080/pgquery?layer=xianch_point&fields=id,name", function (result){
+            geojsonLayer.addData(result);
+        });
 
     </script>
 }
