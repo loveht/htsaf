@@ -17,11 +17,13 @@
             "problemMatcher": "$msCompile"
         },
         {
-            "taskName": "buildconsole",
-            "args": [ "src/ConsoleApp"],
+            "taskName": "buildConsole",
+            "args": [ "build","src/ConsoleApp"],
+            "suppressTaskName":true,
             "isBuildCommand": true,
             "showOutput": "silent",
             "problemMatcher": "$msCompile"
         }
+        
     ]
 }

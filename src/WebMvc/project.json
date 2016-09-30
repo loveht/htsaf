@@ -9,6 +9,9 @@
     "SafSystem":{
             "target":"project"
      },
+     "Ataoge.Data":{
+            "target":"project"
+     },
      "Ataoge.WebGisCore":{
       "target": "project"
      },

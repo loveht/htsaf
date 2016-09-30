@@ -4,9 +4,10 @@
     "debugType": "portable"
   },
   "dependencies": {
-    "Newtonsoft.Json": "9.0.1-beta1",
-    "Microsoft.Extensions.Logging": "1.0.0",
-    "System.IO.FileSystem": "4.0.1"
+    "Ataoge.Data" : {
+      "target":"project"
+    },
+    "Npgsql": "3.1.7"
   },
   "frameworks": {
     "netstandard1.6": {

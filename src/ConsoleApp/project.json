@@ -6,23 +6,23 @@
   },
   "dependencies": {
     "SafSystem": {
-      "target": "project"
-    }
+      "target":"project"
+    },
+    "Castle.Core": "4.0.0-beta001",
+    "Microsoft.Extensions.Logging": "1.0.0",
+    "Microsoft.Extensions.Logging.Console":"1.0.0",
+    "Microsoft.Extensions.Logging.Debug":"1.0.0",
+    "Microsoft.Extensions.DependencyInjection":"1.0.0"
   },
   "frameworks": {
     "netcoreapp1.0": {
       "dependencies": {
         "Microsoft.NETCore.App": {
-    
+          "type": "platform",
           "version": "1.0.0"
         }
       },
-      
-      "imports": "dnxcore50"
+      "imports":"dnxcore50"
     }
-  },
-  "runtimes": {
-        "win10-x64": {},
-        "osx.10.11-x64": {}
-      }
+  }
 }

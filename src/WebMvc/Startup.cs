@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Localization;
 using System.Globalization;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.Extensions.Options;
+using Ataoge.Application;
 
 namespace WebApplication
 {
@@ -37,13 +38,18 @@ namespace WebApplication
 
             builder.AddEnvironmentVariables();
             Configuration = builder.Build();
+
+            SafApp = AppRuntime.Create().Start();
         }
 
         public IConfigurationRoot Configuration { get; }
 
+        public IApp SafApp {get; private set;}
+
         // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(IServiceCollection services)
-        {
+        public IServiceProvider ConfigureServices(IServiceCollection services)
+        { 
+            
             // Add framework services.
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlite(Configuration.GetConnectionString("DefaultConnection")));
@@ -66,6 +72,7 @@ namespace WebApplication
             services.AddTransient<IEmailSender, AuthMessageSender>();
             services.AddTransient<ISmsSender, AuthMessageSender>();
 
+            IServiceProvider serviceProvider = services.BuildServiceProvider();
             services.AddScoped<IQueryContextService, QueryContextService>();
 
             // Configure supported cultures and localization options
@@ -101,6 +108,8 @@ namespace WebApplication
                 //  return new ProviderCultureResult("en");
                 //}));
             });
+
+            return serviceProvider;//services.BuildServiceProvider();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -108,6 +117,7 @@ namespace WebApplication
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
+            SafApp.UseCoreLogging(loggerFactory);
 
             var locOptions = app.ApplicationServices.GetService<IOptions<RequestLocalizationOptions>>();
             app.UseRequestLocalization(locOptions.Value);

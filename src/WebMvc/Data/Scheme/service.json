@@ -1,0 +1,6 @@
+{
+    "ret" : 0, //return code 0: success; > 0 error;
+    "msg" : "return message",
+    "data" : "",
+    "metadata" : ""
+}
